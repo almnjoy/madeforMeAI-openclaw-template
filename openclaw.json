@@ -1,0 +1,142 @@
+{
+  "env": {
+    "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+    "RUNBOOKS_READ_GITHUB_TOKEN": "${RUNBOOKS_READ_GITHUB_TOKEN}"
+  },
+  "gateway": {
+    "bind": "lan",
+    "trustedProxies": [
+      "10.0.0.0/8",
+      "172.16.0.0/12",
+      "192.168.0.0/16"
+    ],
+    "auth": {
+      "mode": "trusted-proxy",
+      "trustedProxy": {
+        "userHeader": "X-authentik-email",
+        "allowUsers": ["{{EMAIL}}"]
+      }
+    },
+    "controlUi": {
+      "allowedOrigins": [
+        "https://{{USERNAME}}.madeformeai.com",
+        "https://chat.madeformeai.com"
+      ],
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    }
+  },
+  "agents": {
+    "defaults": {
+      "skipBootstrap": true,
+      "model": {
+        "primary": "openrouter/google/gemini-2.5-flash"
+      },
+      "agentRuntime": {
+        "id": "auto"
+      },
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "heartbeat": {
+        "every": "2h",
+        "target": "none",
+        "isolatedSession": true,
+        "lightContext": true,
+        "skipWhenBusy": true,
+        "activeHours": {
+          "start": "09:00",
+          "end": "21:00"
+        }
+      },
+      "models": {
+        "openrouter/google/gemini-2.5-flash": {
+          "alias": "⭐ Smart Assistant (Recommended)"
+        },
+        "openrouter/google/gemini-2.5-flash-lite": {
+          "alias": "⚡ Lightning Fast"
+        },
+        "openrouter/openai/gpt-4.1-mini": {
+          "alias": "🤖 Reliable GPT (Battle-Tested)"
+        },
+        "openrouter/openai/gpt-5.1-codex-mini": {
+          "alias": "🆕 Fresh Pick (Recent GPT-5.1)"
+        },
+        "openrouter/openai/gpt-5-nano": {
+          "alias": "💸 Ultra Cheap"
+        },
+        "openrouter/deepseek/deepseek-r1": {
+          "alias": "🔬 Deep Thinker (Complex Problems)"
+        },
+        "openrouter/anthropic/claude-sonnet-4-6": {
+          "alias": "💎 Premium Claude (Expensive)"
+        }
+      }
+    },
+    "list": [
+      {
+        "id": "main",
+        "workspace": "/home/node/.openclaw/workspace",
+        "identity": {
+          "avatar": "workspace/assets/clouds.png"
+        },
+        "thinkingDefault": "low"
+      },
+      {
+        "id": "setup",
+        "name": "MadeForMeAI Setup Assistant",
+        "workspace": "/home/node/.openclaw/workspace-setup",
+        "agentDir": "/home/node/.openclaw/agents/setup/agent",
+        "model": {
+          "primary": "openrouter/google/gemini-2.5-flash-lite"
+        },
+        "identity": {
+          "name": "MadeForMeAI Setup Assistant",
+          "avatar": "workspace-setup/assets/computer.png"
+        },
+        "thinkingDefault": "off",
+        "fastModeDefault": true
+      }
+    ]
+  },
+  "session": {
+    "reset": {
+      "mode": "daily",
+      "atHour": 4,
+      "idleMinutes": 240
+    }
+  },
+  "tools": {
+    "elevated": {
+      "enabled": true,
+      "allowFrom": {
+        "webchat": ["*"]
+      }
+    },
+    "web": {
+      "search": {
+        "provider": "duckduckgo"
+      },
+      "fetch": {
+        "enabled": true
+      }
+    }
+  },
+  "plugins": {
+    "entries": {
+      "openrouter": {
+        "enabled": true
+      },
+      "duckduckgo": {
+        "enabled": true
+      }
+    }
+  },
+  "skills": {
+    "entries": {
+      "healthcheck": {
+        "enabled": false
+      }
+    }
+  }
+}
