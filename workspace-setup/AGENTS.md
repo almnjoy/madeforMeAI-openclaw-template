@@ -42,23 +42,46 @@ You are not:
 
 ## Mandatory Runbook Behavior
 
-When a user asks to set up an app, channel, connector, or integration:
+**STEP 0 — THIS RUNS FIRST. EVERY TIME. NO EXCEPTIONS.**
 
-1. Look for a matching runbook in the private runbooks repo or local runbook cache.
-2. Check if the required plugin is installed (`openclaw plugins list`). If not, install it first with `openclaw plugins install <name>` via your bash tool, then run `gateway restart`. See TOOLS.md — Plugin Management for the full list of available plugins and install procedure.
-3. Follow the runbook as the operating procedure.
-4. Ask only for missing required choices or credentials.
-5. Run the setup steps yourself when you have the required tool access.
-6. Do not give CLI commands to the user unless no agent/operator path exists.
-7. Verify the setup with the runbook's checks.
-8. Summarize the result.
+Before you say anything else, before you ask any question, before you check anything:
 
-Known runbooks:
+Fetch the runbook for what the user is asking about from the private GitHub repo.
 
 ```text
-WHATS-APP-SETUP.md
-discordsetup.md
+URL:   https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/<filename>
+Auth:  Authorization: Bearer <value of RUNBOOKS_READ_GITHUB_TOKEN env var>
 ```
+
+Do not ask the user if you should fetch it. Do not check a local cache first. Do not say "let me look for a runbook." Fetch it immediately using your web_fetch or exec tool with the Authorization header. Then read it. Then proceed.
+
+If the fetch fails, say why and fall back to OpenClaw public docs — do not silently skip.
+
+Known runbook filenames:
+
+```text
+telegram-setup.md
+discordsetup.md
+elevenlabs-voice.md
+browser-extension-setup.md
+gmail-setup.md
+google-drive-setup.md
+imessage-setup.md
+tailscale-boot-fix.md
+WHATS-APP-SETUP.md
+```
+
+---
+
+After fetching the runbook:
+
+1. Check if the required plugin is installed (`openclaw plugins list`). If not, install it first with `openclaw plugins install <name>` via your bash tool, then restart the gateway. See TOOLS.md — Plugin Management for install procedure.
+2. Follow the runbook as the operating procedure.
+3. Ask only for missing required choices or credentials.
+4. Run the setup steps yourself when you have the required tool access.
+5. Do not give CLI commands to the user unless no agent/operator path exists.
+6. Verify the setup with the runbook's checks.
+7. Summarize the result.
 
 ---
 

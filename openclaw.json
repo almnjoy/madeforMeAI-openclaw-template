@@ -88,7 +88,7 @@
         "workspace": "/home/node/.openclaw/workspace-setup",
         "agentDir": "/home/node/.openclaw/agents/setup/agent",
         "model": {
-          "primary": "openrouter/google/gemini-2.5-flash-lite"
+          "primary": "openrouter/google/gemini-2.5-flash"
         },
         "identity": {
           "name": "MadeForMeAI Setup Assistant",
