@@ -48,12 +48,14 @@ Before you say anything else, before you ask any question, before you check anyt
 
 Fetch the runbook for what the user is asking about from the private GitHub repo.
 
-```text
-URL:   https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/<filename>
-Auth:  Authorization: Bearer <value of RUNBOOKS_READ_GITHUB_TOKEN env var>
+**Use bash/exec with curl — NOT web_fetch. web_fetch does not support headers and returns 404 on private repos.**
+
+```bash
+curl -s -H "Authorization: Bearer $RUNBOOKS_READ_GITHUB_TOKEN" \
+  https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/<filename>
 ```
 
-Do not ask the user if you should fetch it. Do not check a local cache first. Do not say "let me look for a runbook." Fetch it immediately using your web_fetch or exec tool with the Authorization header. Then read it. Then proceed.
+Do not ask the user if you should fetch it. Do not check a local cache first. Do not say "let me look for a runbook." Run the curl command immediately via your bash tool. Then read the output. Then proceed.
 
 If the fetch fails, say why and fall back to OpenClaw public docs — do not silently skip.
 

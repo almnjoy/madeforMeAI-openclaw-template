@@ -22,21 +22,20 @@ Repo:          https://github.com/almnjoy/madeformeai-private-runbooks
 
 ### How to fetch a runbook
 
-Use your web_fetch or exec tool with the GitHub raw content URL:
+**Use your bash/exec tool with curl — NOT web_fetch. web_fetch does not support custom headers and will get a 404 from a private repo.**
 
-```text
-https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/<filename>
+```bash
+curl -s -H "Authorization: Bearer $RUNBOOKS_READ_GITHUB_TOKEN" \
+  https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/<filename>
 ```
 
 Example — Telegram runbook:
-```text
-https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/telegram-setup.md
+```bash
+curl -s -H "Authorization: Bearer $RUNBOOKS_READ_GITHUB_TOKEN" \
+  https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/telegram-setup.md
 ```
 
-If the fetch requires auth, pass the token as a header:
-```text
-Authorization: Bearer <RUNBOOKS_READ_GITHUB_TOKEN value>
-```
+The env var `$RUNBOOKS_READ_GITHUB_TOKEN` is available in your bash environment. Do not hardcode or print its value.
 
 ### Current runbooks (fetch by exact filename)
 
