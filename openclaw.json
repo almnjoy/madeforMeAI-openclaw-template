@@ -138,5 +138,8 @@
         "enabled": false
       }
     }
+  },
+  "update": {
+    "checkOnStart": false
   }
 }
