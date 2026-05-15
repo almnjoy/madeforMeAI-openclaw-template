@@ -78,7 +78,7 @@
         "id": "main",
         "workspace": "/home/node/.openclaw/workspace",
         "identity": {
-          "avatar": "workspace/assets/clouds.png"
+          "avatar": "assets/clouds.png"
         },
         "thinkingDefault": "low"
       },
@@ -92,7 +92,7 @@
         },
         "identity": {
           "name": "MadeForMeAI Setup Assistant",
-          "avatar": "workspace-setup/assets/computer.png"
+          "avatar": "assets/computer.png"
         },
         "thinkingDefault": "off",
         "fastModeDefault": true
