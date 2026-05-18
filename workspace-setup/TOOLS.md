@@ -49,6 +49,7 @@ google-drive-setup.md
 imessage-setup.md
 tailscale-boot-fix.md
 WHATS-APP-SETUP.md
+job-agent-setup.md
 ```
 
 ### Token rules
