@@ -47,18 +47,16 @@ script -q -f -c 'openclaw channels login --channel whatsapp' /tmp/wa_login.types
 
 Wait 8 seconds, then proceed immediately to Step 4.
 
-**Step 4 — Convert ANSI capture to PNG and send it**
+**Step 4 — Convert ANSI capture to PNG and output as inline image**
 
-YOU MUST run this Python script. Do not skip it. Do not send the MEDIA line without running this first:
+YOU MUST run this Python script. Do not skip it. The script prints a base64 data URI — copy the entire output and paste it into your chat response so the image renders inline.
 
 ```bash
 python3 - <<'PY'
-import re, zlib, struct, time
+import re, zlib, struct, time, base64
 from pathlib import Path
 
 capture = Path('/tmp/wa_login.typescript')
-out = Path('/home/node/.openclaw/media/whatsapp-login-qr.png')
-out.parent.mkdir(parents=True, exist_ok=True)
 
 for _ in range(20):
     raw = capture.read_text(errors='ignore') if capture.exists() else ''
@@ -114,21 +112,21 @@ png = (
     + chunk(b'IDAT', zlib.compress(b''.join(rows), 9))
     + chunk(b'IEND', b'')
 )
-out.write_bytes(png)
-print('QR saved to', out)
+b64 = base64.b64encode(png).decode()
+print(f'![WhatsApp QR](data:image/png;base64,{b64})')
 PY
 ```
 
-If the script prints `QR saved to ...`, send this in chat (the MEDIA line makes the image appear inline):
+The script prints one line starting with `![WhatsApp QR](data:image/png;base64,...)`
+
+Send that entire line as your chat message, followed by:
 ```
-Scan this QR in WhatsApp:
-
-MEDIA:/home/node/.openclaw/media/whatsapp-login-qr.png
-
-On your phone: WhatsApp → Settings → Linked Devices → Link a Device → scan.
+Scan this QR in WhatsApp: Settings → Linked Devices → Link a Device → scan.
 ```
 
-If the script raises `QR not ready`, wait 5 more seconds and run it again — the `script` process may still be writing.
+Do NOT send `MEDIA:` paths — they do not render. The data URI above is the only method that works.
+
+If the script raises `QR not ready`, wait 5 more seconds and run it again.
 
 **Step 5 — User scans QR**
 Wait for the user to confirm they scanned it.
@@ -160,4 +158,4 @@ kill %1 2>/dev/null; true
 rm -f /tmp/wa_login.typescript
 script -q -f -c 'openclaw channels login --channel whatsapp' /tmp/wa_login.typescript &
 ```
-Wait 8 seconds, then re-run the Python converter from Step 4.
+Wait 8 seconds, then re-run the Python converter from Step 4 and output the new data URI.
