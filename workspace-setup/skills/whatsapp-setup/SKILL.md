@@ -22,9 +22,7 @@ Version mismatch = `text-utility-runtime` crash. Always use `--force` with exact
 
 **Step 2 — Write config (both plugin AND channel entries required)**
 
-Both entries are required. Missing `channels.whatsapp` means WhatsApp loads as a plugin but never connects as a channel.
-
-Use `openclaw config patch` — do NOT edit openclaw.json directly, the gateway overwrites it on restart:
+Both entries are required. Missing `channels.whatsapp` means WhatsApp loads as a plugin but never connects as a channel. Use `openclaw config patch` — do NOT edit openclaw.json directly:
 
 ```bash
 echo '{plugins: {entries: {whatsapp: {enabled: true}}}, channels: {whatsapp: {}}}' | openclaw config patch --stdin
@@ -45,11 +43,11 @@ Wait 20–30 seconds. Verify WhatsApp appears as a channel:
 ```bash
 openclaw status --deep
 ```
-WhatsApp must appear as `UNLINKED` or `LINKED` in the channel list. If it does not appear at all, the config patch in Step 2 failed — do not proceed to QR.
+WhatsApp must appear as `UNLINKED` in the channel list. If it does not appear at all, the config patch in Step 2 failed — do not proceed to QR.
 
 **Step 4 — Capture QR code via script**
 
-There is NO `whatsapp_login` tool. There is no `--qr-output` flag. Running `openclaw channels login --channel whatsapp` directly will not work because it requires an interactive TTY.
+There is NO `whatsapp_login` tool. There is no `--qr-output` flag. Running `openclaw channels login --channel whatsapp` directly will not work — it requires an interactive TTY.
 
 Run the `script` capture in the background:
 ```bash
@@ -57,7 +55,7 @@ rm -f /tmp/wa_login.typescript
 script -q -f -c 'openclaw channels login --channel whatsapp' /tmp/wa_login.typescript &
 ```
 
-Wait 8 seconds, then proceed immediately to Step 4.
+Wait 8 seconds, then proceed to Step 5.
 
 **Step 5 — Convert ANSI capture to PNG and deliver QR**
 
@@ -137,34 +135,53 @@ Your QR code is ready!
 
 MEDIA:/home/node/.openclaw/media/whatsapp-login-qr.png
 
-👆 If you don't see the image above, refresh the page — it will appear after reload.
+If you don't see the image, refresh the page — it will appear after reload.
 
 Once you can see it: WhatsApp → Settings → Linked Devices → Link a Device → scan the QR.
 ```
 
 If the script raises `QR not ready`, wait 5 more seconds and run it again.
 
-**Step 6 — User scans QR**
-Wait for the user to confirm they scanned it. Once confirmed, immediately kill the background capture process — it will conflict with the plugin's connection if left running:
+**Step 6 — User scans QR — then kill capture and ask for their number**
+
+Once the user confirms they scanned it:
+
+1. Kill the background capture process immediately — it competes with the plugin's Baileys connection:
 ```bash
 pkill -f 'openclaw channels login' 2>/dev/null; pkill -f 'script.*wa_login' 2>/dev/null; true
 ```
 
-**Step 7 — Verify**
+2. Ask the user: "What is your WhatsApp phone number including country code? (e.g. +15551234567)"
+
+**Step 7 — Write allowFrom file with user's number**
+
+Replace `+1XXXXXXXXXX` with the number they provided:
+```bash
+mkdir -p /home/node/.openclaw/credentials
+echo '{"version":1,"allowFrom":["+1XXXXXXXXXX"]}' > /home/node/.openclaw/credentials/whatsapp-default-allowFrom.json
+```
+
+Without this file, all inbound messages are silently dropped regardless of pairing status.
+
+**Step 8 — Restart gateway for clean Baileys reconnect**
+
+The Baileys WebSocket goes stale after the QR pairing sequence. A restart is required for it to start receiving messages:
+
+Send the user: "Restarting gateway one more time to activate message receiving — ~30 seconds, then send me a test WhatsApp message."
+
+```bash
+kill $(pgrep -f 'node.*dist/index.js') 2>/dev/null; true
+```
+
+**Step 9 — Verify and confirm end-to-end**
+
+After gateway restarts, run:
 ```bash
 openclaw status --deep
 ```
-Success:
-```
-WhatsApp │ ON │ OK │ configured · accounts 1/1
-WhatsApp │ LINKED │ linked
-```
+Should show `WhatsApp │ LINKED │ linked`.
 
-**Step 8 — Approve sender (if needed)**
-```bash
-openclaw pairing list whatsapp
-openclaw pairing approve whatsapp <CODE>
-```
+Then ask the user to send a test WhatsApp message to the number. Confirm it is received and the main AI responds. Setup is complete only when the user confirms they got a response.
 
 ## If plugin install fails
 
@@ -177,4 +194,4 @@ kill %1 2>/dev/null; true
 rm -f /tmp/wa_login.typescript
 script -q -f -c 'openclaw channels login --channel whatsapp' /tmp/wa_login.typescript &
 ```
-Wait 8 seconds, then re-run the Python converter from Step 4 and output the new data URI.
+Wait 8 seconds, then re-run the Python converter from Step 5.
