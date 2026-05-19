@@ -22,20 +22,15 @@ Version mismatch = `text-utility-runtime` crash. Always use `--force` with exact
 
 **Step 2 — Write config (both plugin AND channel entries required)**
 
-Both entries are required. Missing either one means WhatsApp will not connect:
+Both entries are required. Missing `channels.whatsapp` means WhatsApp loads as a plugin but never connects as a channel.
+
+Use `openclaw config patch` — do NOT edit openclaw.json directly, the gateway overwrites it on restart:
 
 ```bash
-python3 - <<'PY'
-import json
-p = '/home/node/.openclaw/openclaw.json'
-with open(p) as f: cfg = json.load(f)
-cfg.setdefault('plugins', {}).setdefault('entries', {}).setdefault('whatsapp', {})
-cfg['plugins']['entries']['whatsapp']['enabled'] = True
-cfg.setdefault('channels', {}).setdefault('whatsapp', {})
-with open(p, 'w') as f: json.dump(cfg, f, indent=2)
-print('done')
-PY
+echo '{plugins: {entries: {whatsapp: {enabled: true}}}, channels: {whatsapp: {}}}' | openclaw config patch --stdin
 ```
+
+Expected output: `Applied 1 config update(s). Restart the gateway to apply.`
 
 **Step 3 — Warn user, then restart gateway**
 
@@ -50,7 +45,7 @@ Wait 20–30 seconds. Verify WhatsApp appears as a channel:
 ```bash
 openclaw status --deep
 ```
-WhatsApp must appear in the channel list. If it does not, the config write in Step 2 failed — do not proceed to QR.
+WhatsApp must appear as `UNLINKED` or `LINKED` in the channel list. If it does not appear at all, the config patch in Step 2 failed — do not proceed to QR.
 
 **Step 4 — Capture QR code via script**
 
