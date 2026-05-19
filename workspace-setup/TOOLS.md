@@ -13,31 +13,35 @@ Always use sources in this exact order:
 
 ## Private Runbooks Repository
 
-**You have a read-only GitHub token in your environment. Use it.**
+The runbooks repo is **public**. Use `web_fetch` on the raw URL — no token needed.
 
 ```text
-Token env var: RUNBOOKS_READ_GITHUB_TOKEN
-Repo:          https://github.com/almnjoy/madeformeai-private-runbooks
+Repo: https://github.com/almnjoy/madeformeai-private-runbooks
 ```
 
 ### How to fetch a runbook
 
-**Use your bash/exec tool with curl — NOT web_fetch. web_fetch does not support custom headers and will get a 404 from a private repo.**
+**Primary method — web_fetch (preferred):**
 
-```bash
-curl -s -H "Authorization: Bearer $RUNBOOKS_READ_GITHUB_TOKEN" \
-  https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/<filename>
+```
+https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/<EXACT_FILENAME>
 ```
 
-Example — Telegram runbook:
+Example — WhatsApp runbook:
+```
+https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/WHATS-APP-SETUP.md
+```
+
+**Fallback — curl with token (if web_fetch fails):**
+
 ```bash
 curl -s -H "Authorization: Bearer $RUNBOOKS_READ_GITHUB_TOKEN" \
-  https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/telegram-setup.md
+  https://raw.githubusercontent.com/almnjoy/madeformeai-private-runbooks/main/<EXACT_FILENAME>
 ```
 
 The env var `$RUNBOOKS_READ_GITHUB_TOKEN` is available in your bash environment. Do not hardcode or print its value.
 
-### Current runbooks (fetch by exact filename)
+### Current runbooks — exact filenames (case-sensitive)
 
 ```text
 telegram-setup.md
@@ -57,7 +61,7 @@ job-agent-setup.md
 - Use read-only access only.
 - Never print the token value in chat.
 - Never save the token to files, memory, or logs.
-- If the token fetch fails, say why and fall back to OpenClaw docs — do not silently skip.
+- If both web_fetch and curl fail, say why — do not silently skip or proceed without the runbook.
 
 ---
 
