@@ -138,6 +138,12 @@
       },
       "duckduckgo": {
         "enabled": true
+      },
+      "memory-core": {
+        "enabled": true
+      },
+      "active-memory": {
+        "enabled": true
       }
     }
   },
