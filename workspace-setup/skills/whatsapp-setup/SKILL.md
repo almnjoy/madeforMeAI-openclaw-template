@@ -20,7 +20,24 @@ openclaw plugins install @openclaw/whatsapp@<VERSION> --force
 ```
 Version mismatch = `text-utility-runtime` crash. Always use `--force` with exact version.
 
-**Step 2 — Warn user, then restart gateway**
+**Step 2 — Write config (both plugin AND channel entries required)**
+
+Both entries are required. Missing either one means WhatsApp will not connect:
+
+```bash
+python3 - <<'PY'
+import json
+p = '/home/node/.openclaw/openclaw.json'
+with open(p) as f: cfg = json.load(f)
+cfg.setdefault('plugins', {}).setdefault('entries', {}).setdefault('whatsapp', {})
+cfg['plugins']['entries']['whatsapp']['enabled'] = True
+cfg.setdefault('channels', {}).setdefault('whatsapp', {})
+with open(p, 'w') as f: json.dump(cfg, f, indent=2)
+print('done')
+PY
+```
+
+**Step 3 — Warn user, then restart gateway**
 
 BEFORE running the kill command, send the user this message exactly:
 > "Restarting the gateway now to load the WhatsApp plugin — it will go offline for ~30 seconds. Send me any message after it comes back and I'll continue with the QR code step."
@@ -29,13 +46,13 @@ Then run:
 ```bash
 kill $(pgrep -f 'node.*dist/index.js') 2>/dev/null; true
 ```
-Wait 20–30 seconds. Verify plugin loaded:
+Wait 20–30 seconds. Verify WhatsApp appears as a channel:
 ```bash
-openclaw plugins list
 openclaw status --deep
 ```
+WhatsApp must appear in the channel list. If it does not, the config write in Step 2 failed — do not proceed to QR.
 
-**Step 3 — Capture QR code via script**
+**Step 4 — Capture QR code via script**
 
 There is NO `whatsapp_login` tool. There is no `--qr-output` flag. Running `openclaw channels login --channel whatsapp` directly will not work because it requires an interactive TTY.
 
@@ -47,16 +64,18 @@ script -q -f -c 'openclaw channels login --channel whatsapp' /tmp/wa_login.types
 
 Wait 8 seconds, then proceed immediately to Step 4.
 
-**Step 4 — Convert ANSI capture to PNG and output as inline image**
+**Step 5 — Convert ANSI capture to PNG and deliver QR**
 
-YOU MUST run this Python script. Do not skip it. The script prints a base64 data URI — copy the entire output and paste it into your chat response so the image renders inline.
+YOU MUST run this Python script. Do not skip it. Do not send the MEDIA line without running this first:
 
 ```bash
 python3 - <<'PY'
-import re, zlib, struct, time, base64
+import re, zlib, struct, time
 from pathlib import Path
 
 capture = Path('/tmp/wa_login.typescript')
+out = Path('/home/node/.openclaw/media/whatsapp-login-qr.png')
+out.parent.mkdir(parents=True, exist_ok=True)
 
 for _ in range(20):
     raw = capture.read_text(errors='ignore') if capture.exists() else ''
@@ -112,26 +131,31 @@ png = (
     + chunk(b'IDAT', zlib.compress(b''.join(rows), 9))
     + chunk(b'IEND', b'')
 )
-b64 = base64.b64encode(png).decode()
-print(f'![WhatsApp QR](data:image/png;base64,{b64})')
+out.write_bytes(png)
+print('QR saved to', out)
 PY
 ```
 
-The script prints one line starting with `![WhatsApp QR](data:image/png;base64,...)`
-
-Send that entire line as your chat message, followed by:
+If the script prints `QR saved to ...`, send this message exactly:
 ```
-Scan this QR in WhatsApp: Settings → Linked Devices → Link a Device → scan.
-```
+Your QR code is ready!
 
-Do NOT send `MEDIA:` paths — they do not render. The data URI above is the only method that works.
+MEDIA:/home/node/.openclaw/media/whatsapp-login-qr.png
+
+👆 If you don't see the image above, refresh the page — it will appear after reload.
+
+Once you can see it: WhatsApp → Settings → Linked Devices → Link a Device → scan the QR.
+```
 
 If the script raises `QR not ready`, wait 5 more seconds and run it again.
 
-**Step 5 — User scans QR**
-Wait for the user to confirm they scanned it.
+**Step 6 — User scans QR**
+Wait for the user to confirm they scanned it. Once confirmed, immediately kill the background capture process — it will conflict with the plugin's connection if left running:
+```bash
+pkill -f 'openclaw channels login' 2>/dev/null; pkill -f 'script.*wa_login' 2>/dev/null; true
+```
 
-**Step 6 — Verify**
+**Step 7 — Verify**
 ```bash
 openclaw status --deep
 ```
@@ -141,7 +165,7 @@ WhatsApp │ ON │ OK │ configured · accounts 1/1
 WhatsApp │ LINKED │ linked
 ```
 
-**Step 7 — Approve sender (if needed)**
+**Step 8 — Approve sender (if needed)**
 ```bash
 openclaw pairing list whatsapp
 openclaw pairing approve whatsapp <CODE>
