@@ -20,7 +20,12 @@ openclaw plugins install @openclaw/whatsapp@<VERSION> --force
 ```
 Version mismatch = `text-utility-runtime` crash. Always use `--force` with exact version.
 
-**Step 2 — Restart gateway**
+**Step 2 — Warn user, then restart gateway**
+
+BEFORE running the kill command, send the user this message exactly:
+> "Restarting the gateway now to load the WhatsApp plugin — it will go offline for ~30 seconds. Send me any message after it comes back and I'll continue with the QR code step."
+
+Then run:
 ```bash
 kill $(pgrep -f 'node.*dist/index.js') 2>/dev/null; true
 ```
@@ -30,21 +35,25 @@ openclaw plugins list
 openclaw status --deep
 ```
 
-**Step 3 — Start QR login flow**
-```bash
-openclaw channels login --channel whatsapp
-```
-Keep this running while the user scans.
+**Step 3 — Capture QR code via script**
 
-**Step 4 — Deliver QR to user**
-If the command returns a QR image file path, send: `MEDIA:/path/to/qr.png`
+There is NO `whatsapp_login` tool. There is no `--qr-output` flag. Running `openclaw channels login --channel whatsapp` directly will not work because it requires an interactive TTY that exec tools cannot provide.
 
-If it only prints terminal QR (ANSI blocks), capture and convert:
+The only working method is `script` capture:
 ```bash
 rm -f /tmp/wa_login.typescript
-script -q -f -c 'openclaw channels login --channel whatsapp' /tmp/wa_login.typescript
+script -q -f -c 'openclaw channels login --channel whatsapp' /tmp/wa_login.typescript &
 ```
-Then run the PNG converter from the runbook and send: `MEDIA:/home/node/.openclaw/media/whatsapp-login-qr.png`
+
+Wait 5–10 seconds for the QR to render, then run the PNG converter from the runbook.
+
+**Step 4 — Convert and deliver QR**
+
+Run the PNG converter script from the runbook. Then send:
+```
+MEDIA:/home/node/.openclaw/media/whatsapp-login-qr.png
+```
+Tell the user: WhatsApp → Settings → Linked Devices → Link a Device → scan QR.
 
 **Step 5 — User scans QR**
 Tell user: WhatsApp → Settings → Linked Devices → Link a Device → scan QR.
