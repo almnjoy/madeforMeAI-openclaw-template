@@ -95,7 +95,16 @@
           "avatar": "assets/computer.png"
         },
         "thinkingDefault": "off",
-        "fastModeDefault": true
+        "fastModeDefault": true,
+        "skills": [
+          "setup-protocol",
+          "config-write",
+          "plugin-install",
+          "telegram-setup",
+          "whatsapp-setup",
+          "discord-setup",
+          "elevenlabs-setup"
+        ]
       }
     ]
   },
