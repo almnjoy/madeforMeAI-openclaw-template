@@ -30,7 +30,7 @@
     "defaults": {
       "skipBootstrap": true,
       "model": {
-        "primary": "openrouter/google/gemini-2.5-flash"
+        "primary": "openrouter/moonshotai/kimi-k2"
       },
       "agentRuntime": {
         "id": "auto"
@@ -50,26 +50,26 @@
         }
       },
       "models": {
-        "openrouter/google/gemini-2.5-flash": {
+        "openrouter/moonshotai/kimi-k2": {
           "alias": "⭐ Smart Assistant (Recommended)"
         },
-        "openrouter/google/gemini-2.5-flash-lite": {
-          "alias": "⚡ Lightning Fast"
+        "openrouter/google/gemini-3.1-flash-lite-preview": {
+          "alias": "⚡ Quick Answers"
         },
-        "openrouter/openai/gpt-4.1-mini": {
-          "alias": "🤖 Reliable GPT (Battle-Tested)"
+        "openrouter/x-ai/grok-4.3": {
+          "alias": "🧠 Logic & Reasoning"
         },
-        "openrouter/openai/gpt-5.1-codex-mini": {
-          "alias": "🆕 Fresh Pick (Recent GPT-5.1)"
+        "openrouter/anthropic/claude-haiku-4-5": {
+          "alias": "💻 Coding Helper"
         },
-        "openrouter/openai/gpt-5-nano": {
-          "alias": "💸 Ultra Cheap"
-        },
-        "openrouter/deepseek/deepseek-r1": {
-          "alias": "🔬 Deep Thinker (Complex Problems)"
+        "openrouter/moonshotai/kimi-k2.6": {
+          "alias": "🔬 Deep Research"
         },
         "openrouter/anthropic/claude-sonnet-4-6": {
-          "alias": "💎 Premium Claude (Expensive)"
+          "alias": "💎 Premium Claude"
+        },
+        "openrouter/deepseek/deepseek-v4-flash": {
+          "alias": "💸 Ultra Cheap"
         }
       }
     },
@@ -88,7 +88,7 @@
         "workspace": "/home/node/.openclaw/workspace-setup",
         "agentDir": "/home/node/.openclaw/agents/setup/agent",
         "model": {
-          "primary": "openrouter/google/gemini-2.5-flash"
+          "primary": "openrouter/anthropic/claude-haiku-4-5"
         },
         "identity": {
           "name": "MadeForMeAI Setup Assistant",
