@@ -32,9 +32,6 @@
       "model": {
         "primary": "openrouter/moonshotai/kimi-k2"
       },
-      "agentRuntime": {
-        "id": "auto"
-      },
       "compaction": {
         "mode": "safeguard"
       },
